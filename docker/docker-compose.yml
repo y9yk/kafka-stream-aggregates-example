@@ -14,6 +14,16 @@ services:
       - zookeeper
     environment:
       - ZOOKEEPER_CONNECT=zookeeper:2181
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    ports:
+      - 9000:9000
+    links:
+      - kafka
+    environment:
+      - KAFKA_BROKERCONNECT=kafka:9092
+      - JVM_OPTS=-Xms32M -Xmx64M
+      - SERVER_SERVLET_CONTEXTPATH=/
   mysql:
     image: quay.io/debezium/example-mysql:${DEBEZIUM_VERSION}
     ports:
