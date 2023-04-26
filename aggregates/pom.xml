@@ -10,6 +10,7 @@
 
   <properties>
     <mvn.compiler.version>3.6.1</mvn.compiler.version>
+    <mvn.assembly.version>3.3.0</mvn.assembly.version>
     <mvn.dependency.version>3.0.2</mvn.dependency.version>
     <apache.kafka.version>1.0.0</apache.kafka.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -18,6 +19,11 @@
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>net.sourceforge.argparse4j</groupId>
+      <artifactId>argparse4j</artifactId>
+      <version>0.9.0</version>
+    </dependency>
     <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka_2.11</artifactId>
@@ -50,6 +56,32 @@
           <source>${java.version}</source>
           <target>${java.version}</target>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>${mvn.assembly.version}</version>
+        <configuration>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+          <finalName>${project.name}</finalName>
+          <appendAssemblyId>false</appendAssemblyId>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <mainClass>${project.groupId}.${project.artifactId}.App</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
     <pluginManagement>
