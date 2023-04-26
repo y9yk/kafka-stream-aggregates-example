@@ -9,6 +9,8 @@ public class LatestAddress {
   private DefaultId customerId;
   private Address latest;
 
+  public LatestAddress() {}
+
   @JsonCreator
   public LatestAddress(
     @JsonProperty("addressId") DefaultId addressId,

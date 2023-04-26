@@ -11,6 +11,8 @@ import java.util.Map;
 
 public class Addresses {
 
+  public Addresses() {}
+
   @JsonProperty
   @JsonSerialize(keyUsing = DefaultId.IdSerializer.class)
   @JsonDeserialize(keyUsing = DefaultId.IdDeserializer.class)

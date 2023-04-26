@@ -7,7 +7,7 @@ public class Address {
 
   private final EventType _eventType;
   private final Integer id;
-  private final Integer customer_id;
+  private final Integer customerId;
   private final String street;
   private final String city;
   private final String state;
@@ -18,7 +18,7 @@ public class Address {
   public Address(
     @JsonProperty("_eventType") EventType _eventType,
     @JsonProperty("id") Integer id,
-    @JsonProperty("customer_id") Integer customer_id,
+    @JsonProperty("customer_id") Integer customerId,
     @JsonProperty("street") String street,
     @JsonProperty("city") String city,
     @JsonProperty("state") String state,
@@ -27,7 +27,7 @@ public class Address {
   ) {
     this._eventType = _eventType != null ? _eventType : EventType.UPSERT;
     this.id = id;
-    this.customer_id = customer_id;
+    this.customerId = customerId;
     this.street = street;
     this.city = city;
     this.state = state;
@@ -43,8 +43,8 @@ public class Address {
     return this.id;
   }
 
-  public Integer getCustomer_id() {
-    return this.customer_id;
+  public Integer getCustomerId() {
+    return this.customerId;
   }
 
   public String getStreet() {
@@ -77,7 +77,7 @@ public class Address {
       ", id=" +
       this.id +
       ", customer_id=" +
-      this.customer_id +
+      this.customerId +
       ", street='" +
       this.street +
       '\'' +
