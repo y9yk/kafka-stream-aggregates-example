@@ -136,6 +136,11 @@ public class App {
     // state-store-config (for view changelog)
     Map<String, String> stateStoreConfig = new HashMap<>();
     stateStoreConfig.put(TopicConfig.SEGMENT_BYTES_CONFIG, "3000");
+    stateStoreConfig.put(
+      TopicConfig.CLEANUP_POLICY_CONFIG,
+      TopicConfig.CLEANUP_POLICY_DELETE
+    );
+    stateStoreConfig.put(TopicConfig.RETENTION_MS_CONFIG, "60000");
 
     StreamsBuilder builder = new StreamsBuilder();
 
