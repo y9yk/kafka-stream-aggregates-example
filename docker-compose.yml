@@ -1,0 +1,91 @@
+version: "3"
+services:
+  zookeeper:
+    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
+    ports:
+      - 2181:2181
+      - 2888:2888
+      - 3888:3888
+  kafka:
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
+    ports:
+      - 9092:9092
+    links:
+      - zookeeper
+    environment:
+      - ZOOKEEPER_CONNECT=zookeeper:2181
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    ports:
+      - 9000:9000
+    links:
+      - kafka
+    environment:
+      - KAFKA_BROKERCONNECT=kafka:9092
+      - JVM_OPTS=-Xms32M -Xmx64M
+      - SERVER_SERVLET_CONTEXTPATH=/
+  mysql:
+    image: quay.io/debezium/example-mysql:${DEBEZIUM_VERSION}
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=debezium
+      - MYSQL_USER=mysqluser
+      - MYSQL_PASSWORD=mysqlpw
+  mongodb:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+  connect_source:
+    image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
+    build:
+      context: debezium-mongodb
+    ports:
+      - 8083:8083
+    links:
+      - kafka
+      - mysql
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=source_connect_configs
+      - OFFSET_STORAGE_TOPIC=source_connect_offsets
+  connect_sink:
+    image: debezium/connect-mongodb:${DEBEZIUM_VERSION}
+    build:
+      context: debezium-mongodb
+    ports:
+      - 8084:8083
+    links:
+      - kafka
+      - mongodb
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=2
+      - CONFIG_STORAGE_TOPIC=sink_connect_configs
+      - OFFSET_STORAGE_TOPIC=sink_connect_offsets
+      - CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE=false
+      - CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=false
+  aggregator:
+    image: debezium/kstreams-aggregator:${DEBEZIUM_VERSION}
+    pull_policy: always
+    build:
+      context: aggregates
+    links:
+      - kafka
+    environment:
+      - PARENT_TOPIC=dbserver1.inventory.customers
+      - CHILDREN_TOPIC=dbserver1.inventory.addresses
+      - BOOTSTRAP_SERVERS=kafka:9092
+    depends_on:
+      - connect_source
+    command: >
+      /bin/bash -c "
+        while ! curl -f -s -X GET http://connect_source:8083/connectors/mysql-source;
+        do
+          echo 'Waiting for source connector to be deployed';
+          sleep 1;
+        done;
+        echo 'Source connector deployed!';
+        /opt/aggregates/run.sh
+      "
