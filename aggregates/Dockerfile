@@ -26,7 +26,7 @@ RUN mvn dependency:go-offline -f /tmp/aggregates/pom.xml
 RUN mvn dependency:copy-dependencies -f /tmp/aggregates/pom.xml -DoutputDirectory=target/dependencies -DincludeScope=compile
 
 COPY src /tmp/aggregates/src
-RUN mvn clean package -DskipTests -o -f /tmp/aggregates/pom.xml
+RUN mvn package -DskipTests -o -f /tmp/aggregates/pom.xml
 
 # 3. Create actual image (jlink-ed JDK, dependencies, JAR and launcher)
 FROM registry.fedoraproject.org/fedora-minimal:30
@@ -37,4 +37,4 @@ RUN cd /opt/aggregates \
     && chmod u+x run-java.sh
 COPY --from=build /tmp/aggregates/target/dependencies/* /opt/aggregates/lib/
 COPY run.sh /opt/aggregates
-COPY --from=build /tmp/aggregates/target/aggregates-0.1-SNAPSHOT.jar /opt/aggregates/lib/aggregates-0.1-SNAPSHOT.jar
+COPY --from=build /tmp/aggregates/target/aggregates.jar /opt/aggregates/lib/aggregates.jar
