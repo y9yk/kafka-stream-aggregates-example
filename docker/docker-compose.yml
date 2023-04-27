@@ -66,26 +66,26 @@ services:
       - OFFSET_STORAGE_TOPIC=sink_connect_offsets
       - CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE=false
       - CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=false
-  # aggregator:
-  #   image: debezium/kstreams-aggregator:${DEBEZIUM_VERSION}
-  #   build:
-  #     context: poc-ddd-aggregates
-  #   links:
-  #     - kafka
-  #   environment:
-  #     - JAVA_MAIN_CLASS=io.debezium.examples.aggregation.StreamingAggregatesDDD
-  #     - PARENT_TOPIC=dbserver1.inventory.customers
-  #     - CHILDREN_TOPIC=dbserver1.inventory.addresses
-  #     - BOOTSTRAP_SERVERS=kafka:9092
-  #   depends_on:
-  #     - connect_source
-  #   command: >
-  #     /bin/bash -c "
-  #       while ! curl -f -s -X GET http://connect_source:8083/connectors/mysql-source;
-  #       do
-  #         echo 'Waiting for source connector to be deployed';
-  #         sleep 1;
-  #       done;
-  #       echo 'Source connector deployed!';
-  #       /opt/poc-ddd-aggregates/run-aggregator.sh
-  #     "
+  aggregator:
+    image: debezium/kstreams-aggregator:${DEBEZIUM_VERSION}
+    pull_policy: always
+    build:
+      context: ../aggregates
+    links:
+      - kafka
+    environment:
+      - PARENT_TOPIC=dbserver1.inventory.customers
+      - CHILDREN_TOPIC=dbserver1.inventory.addresses
+      - BOOTSTRAP_SERVERS=kafka:9092
+    depends_on:
+      - connect_source
+    command: >
+      /bin/bash -c "
+        while ! curl -f -s -X GET http://connect_source:8083/connectors/mysql-source;
+        do
+          echo 'Waiting for source connector to be deployed';
+          sleep 1;
+        done;
+        echo 'Source connector deployed!';
+        /app/run.sh
+      "
