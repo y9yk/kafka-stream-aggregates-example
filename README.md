@@ -4,7 +4,7 @@ kafka-streams을 이용한 코드 예제입니다.
 
 ## Data Flow
 
-
+![architecture](./architecture.png)
 
 ## Source/Sink Connector Configuration
 
